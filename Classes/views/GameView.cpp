@@ -32,13 +32,20 @@ bool GameView::init(const GameModel* model)
         return false;
     }
 
-    createLayout();
-    createCardViews(model);
+    _createLayout();
+    _createCardViews(model);
 
     return true;
 }
 
-void GameView::createLayout()
+void GameView::_createLayout()
+{
+    _createBackgroundLayers();
+    _createZoneViews();
+    _createUndoButton();
+}
+
+void GameView::_createBackgroundLayers()
 {
     // Background (dark gray, not pure black)
     auto background = cocos2d::LayerColor::create(cocos2d::Color4B(20, 20, 20, 255), kDesignWidth, kDesignHeight);
@@ -53,7 +60,10 @@ void GameView::createLayout()
     auto handBg = cocos2d::LayerColor::create(cocos2d::Color4B(90, 60, 140, 255), kDesignWidth, kStackHeight);
     handBg->setPosition(cocos2d::Vec2(0, 0));
     this->addChild(handBg, 0);
+}
 
+void GameView::_createZoneViews()
+{
     _playFieldView = PlayFieldView::create();
     _stackView = StackView::create();
     _trayView = TrayView::create();
@@ -78,7 +88,10 @@ void GameView::createLayout()
 
     _stackPosition = cocos2d::Vec2(kDesignWidth * 0.25f, kStackHeight * 0.5f);
     _trayPosition = cocos2d::Vec2(kDesignWidth * 0.75f, kStackHeight * 0.5f);
+}
 
+void GameView::_createUndoButton()
+{
     auto undoLabel = cocos2d::Label::createWithTTF("Undo", "fonts/Marker Felt.ttf", 32);
     auto undoItem = cocos2d::MenuItemLabel::create(undoLabel, [this](cocos2d::Ref*) {
         if (_onUndoClick)
@@ -93,60 +106,69 @@ void GameView::createLayout()
     this->addChild(_menu, 3);
 }
 
-void GameView::createCardViews(const GameModel* model)
+void GameView::_createCardViews(const GameModel* model)
 {
     if (!model)
     {
         return;
     }
 
-    for (const CardModel& card : model->cards)
+    for (const CardModel& kCard : model->cards)
     {
-        CardView* cardView = CardView::create(&card);
+        CardView* cardView = CardView::create(&kCard);
         if (!cardView)
         {
             continue;
         }
 
-        cardView->setPosition(card.position);
-        _cardViews[card.id] = cardView;
+        cardView->setPosition(kCard.position);
+        _cardViews[kCard.id] = cardView;
+        _attachCardToZone(kCard, cardView);
+    }
+}
 
-        switch (card.zone)
+void GameView::_attachCardToZone(const CardModel& card, CardView* cardView)
+{
+    if (!cardView)
+    {
+        return;
+    }
+
+    switch (card.zone)
+    {
+    case CardZone::PLAYFIELD:
+        if (_playFieldView)
         {
-        case CardZone::PLAYFIELD:
-            if (_playFieldView)
-            {
-                _playFieldView->addCardView(cardView);
-            }
-            break;
-        case CardZone::STACK:
-            if (_stackView)
-            {
-                _stackView->addChild(cardView);
-            }
-            cardView->setVisible(false);
-            cardView->setInteractive(false);
-            break;
-        case CardZone::TRAY:
-            if (_trayView)
-            {
-                _trayView->addChild(cardView);
-            }
-            cardView->setInteractive(false);
-            break;
-        case CardZone::DISCARD:
-            this->addChild(cardView);
-            cardView->setVisible(false);
-            cardView->setInteractive(false);
-            break;
+            _playFieldView->addCardView(cardView);
         }
+        break;
+    case CardZone::STACK:
+        if (_stackView)
+        {
+            _stackView->addChild(cardView);
+        }
+        cardView->setVisible(false);
+        cardView->setInteractive(false);
+        break;
+    case CardZone::TRAY:
+        if (_trayView)
+        {
+            _trayView->addChild(cardView);
+        }
+        cardView->setInteractive(false);
+        break;
+    case CardZone::DISCARD:
+        this->addChild(cardView);
+        cardView->setVisible(false);
+        cardView->setInteractive(false);
+        break;
     }
 }
 
 void GameView::setOnPlayFieldCardClick(const std::function<void(int)>& callback)
 {
     _onPlayFieldCardClick = callback;
-    refreshPlayFieldCallbacks();
+    _refreshPlayFieldCallbacks();
 }
 
 void GameView::setOnStackClick(const std::function<void()>& callback)
@@ -307,7 +329,6 @@ void GameView::setTrayTopCard(int cardId)
     }
 }
 
-
 cocos2d::Vec2 GameView::getTrayPosition() const
 {
     return _trayPosition;
@@ -318,7 +339,7 @@ cocos2d::Vec2 GameView::getStackPosition() const
     return _stackPosition;
 }
 
-void GameView::refreshPlayFieldCallbacks()
+void GameView::_refreshPlayFieldCallbacks()
 {
     if (!_playFieldView)
     {
@@ -343,6 +364,5 @@ void GameView::refreshPlayFieldCallbacks()
 }
 
 } // namespace cardgame
-
 
 

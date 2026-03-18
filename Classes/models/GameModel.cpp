@@ -65,10 +65,10 @@ std::string GameModel::serializeToJsonString() const
     doc.AddMember("trayTopCardId", trayTopCardId, allocator);
 
     rapidjson::Value cardsValue(rapidjson::kArrayType);
-    for (const CardModel& card : cards)
+    for (const CardModel& kCard : cards)
     {
         rapidjson::Value cardValue;
-        card.toJson(cardValue, allocator);
+        kCard.toJson(cardValue, allocator);
         cardsValue.PushBack(cardValue, allocator);
     }
     doc.AddMember("cards", cardsValue, allocator);
@@ -122,10 +122,10 @@ bool GameModel::deserializeFromJsonString(const std::string& jsonText)
 
     trayTopCardId = doc.HasMember("trayTopCardId") ? doc["trayTopCardId"].GetInt() : -1;
 
-    const rapidjson::Value& cardsValue = doc["cards"];
-    for (rapidjson::SizeType i = 0; i < cardsValue.Size(); ++i)
+    const rapidjson::Value& kCardsValue = doc["cards"];
+    for (rapidjson::SizeType i = 0; i < kCardsValue.Size(); ++i)
     {
-        CardModel card = CardModel::fromJson(cardsValue[i]);
+        CardModel card = CardModel::fromJson(kCardsValue[i]);
         addCard(card);
     }
 
@@ -156,7 +156,7 @@ bool GameModel::deserializeFromJsonString(const std::string& jsonText)
     return true;
 }
 
-void GameModel::rebuildIdMap()
+void GameModel::_rebuildIdMap()
 {
     _idToIndex.clear();
     for (size_t i = 0; i < cards.size(); ++i)
@@ -166,4 +166,3 @@ void GameModel::rebuildIdMap()
 }
 
 } // namespace cardgame
-

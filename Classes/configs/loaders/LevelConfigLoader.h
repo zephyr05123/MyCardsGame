@@ -6,6 +6,7 @@
 
 /**
  * @brief Loads level configuration from JSON files.
+ * @details Produces LevelConfig structures used by the model generator.
  */
 namespace cardgame {
 
@@ -16,7 +17,7 @@ public:
      * @brief Load level config from a JSON file.
      * @param filePath File path relative to search paths.
      * @param outConfig Output configuration.
-     * @return true on success.
+     * @return true when parsing succeeds.
      */
     static bool loadFromFile(const std::string& filePath, LevelConfig& outConfig);
 };

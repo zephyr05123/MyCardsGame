@@ -6,6 +6,7 @@
  */
 namespace cardgame {
 
+/** @brief Suit enum values used by card assets and rules. */
 enum CardSuitType
 {
     CST_NONE = -1,
@@ -16,6 +17,7 @@ enum CardSuitType
     CST_NUM_CARD_SUIT_TYPES
 };
 
+/** @brief Face enum values from Ace to King. */
 enum CardFaceType
 {
     CFT_NONE = -1,
@@ -35,6 +37,7 @@ enum CardFaceType
     CFT_NUM_CARD_FACE_TYPES
 };
 
+/** @brief Logical zone for where a card currently resides. */
 enum class CardZone
 {
     PLAYFIELD = 0,
@@ -43,6 +46,11 @@ enum class CardZone
     DISCARD
 };
 
+/**
+ * @brief Check whether a suit is red.
+ * @param suit Suit enum value.
+ * @return true if the suit is diamonds or hearts.
+ */
 inline bool isRedSuit(CardSuitType suit)
 {
     return suit == CST_DIAMONDS || suit == CST_HEARTS;

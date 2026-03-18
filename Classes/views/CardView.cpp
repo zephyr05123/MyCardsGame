@@ -34,12 +34,12 @@ bool CardView::init(const CardModel* model)
     }
 
     refreshVisuals(model);
-    setupTouch();
+    _setupTouch();
 
     return true;
 }
 
-void CardView::setupTouch()
+void CardView::_setupTouch()
 {
     auto listener = cocos2d::EventListenerTouchOneByOne::create();
     listener->setSwallowTouches(true);
@@ -53,8 +53,8 @@ void CardView::setupTouch()
         {
             return false;
         }
-        const cocos2d::Vec2 location = this->getParent()->convertToNodeSpace(touch->getLocation());
-        if (this->getBoundingBox().containsPoint(location))
+        const cocos2d::Vec2 kLocation = this->getParent()->convertToNodeSpace(touch->getLocation());
+        if (this->getBoundingBox().containsPoint(kLocation))
         {
             if (_onClick)
             {
@@ -104,38 +104,38 @@ void CardView::refreshVisuals(const CardModel* model)
         _suitSprite = nullptr;
     }
 
-    const cocos2d::Size cardSize = _background ? _background->getContentSize() : this->getContentSize();
+    const cocos2d::Size kCardSize = _background ? _background->getContentSize() : this->getContentSize();
 
-    const std::string numberFile = CardResConfig::getBigNumberFile(model->suit, model->face);
-    if (!numberFile.empty())
+    const std::string kNumberFile = CardResConfig::getBigNumberFile(model->suit, model->face);
+    if (!kNumberFile.empty())
     {
-        _numberSprite = cocos2d::Sprite::create(numberFile);
+        _numberSprite = cocos2d::Sprite::create(kNumberFile);
         if (_numberSprite)
         {
-            const cocos2d::Size numSize = _numberSprite->getContentSize();
-            const float targetW = cardSize.width * 0.5f;
-            const float targetH = cardSize.height * 0.5f;
-            const float scaleW = targetW / numSize.width;
-            const float scaleH = targetH / numSize.height;
-            _numberSprite->setScale(std::min(scaleW, scaleH));
-            _numberSprite->setPosition(cocos2d::Vec2(cardSize.width * 0.00f, cardSize.height * 0.00f));
+            const cocos2d::Size kNumSize = _numberSprite->getContentSize();
+            const float kTargetW = kCardSize.width * 0.5f;
+            const float kTargetH = kCardSize.height * 0.5f;
+            const float kScaleW = kTargetW / kNumSize.width;
+            const float kScaleH = kTargetH / kNumSize.height;
+            _numberSprite->setScale(std::min(kScaleW, kScaleH));
+            _numberSprite->setPosition(cocos2d::Vec2(kCardSize.width * 0.00f, kCardSize.height * 0.00f));
             this->addChild(_numberSprite);
         }
     }
 
-    const std::string suitFile = CardResConfig::getSuitIconFile(model->suit);
-    if (!suitFile.empty())
+    const std::string kSuitFile = CardResConfig::getSuitIconFile(model->suit);
+    if (!kSuitFile.empty())
     {
-        _suitSprite = cocos2d::Sprite::create(suitFile);
+        _suitSprite = cocos2d::Sprite::create(kSuitFile);
         if (_suitSprite)
         {
-            const cocos2d::Size suitSize = _suitSprite->getContentSize();
-            const float targetW = cardSize.width * 0.22f;
-            const float targetH = cardSize.height * 0.22f;
-            const float scaleW = targetW / suitSize.width;
-            const float scaleH = targetH / suitSize.height;
-            _suitSprite->setScale(std::min(scaleW, scaleH));
-            _suitSprite->setPosition(cocos2d::Vec2(cardSize.width * 0.27f, cardSize.height * 0.27f));
+            const cocos2d::Size kSuitSize = _suitSprite->getContentSize();
+            const float kTargetW = kCardSize.width * 0.22f;
+            const float kTargetH = kCardSize.height * 0.22f;
+            const float kScaleW = kTargetW / kSuitSize.width;
+            const float kScaleH = kTargetH / kSuitSize.height;
+            _suitSprite->setScale(std::min(kScaleW, kScaleH));
+            _suitSprite->setPosition(cocos2d::Vec2(kCardSize.width * 0.27f, kCardSize.height * 0.27f));
             this->addChild(_suitSprite);
         }
     }
@@ -147,8 +147,3 @@ int CardView::getCardId() const
 }
 
 } // namespace cardgame
-
-
-
-
-

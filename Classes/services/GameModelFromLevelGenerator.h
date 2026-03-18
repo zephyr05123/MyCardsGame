@@ -6,13 +6,19 @@
 #include "models/GameModel.h"
 
 /**
- * @brief Generates runtime GameModel from static LevelConfig.
+ * @brief Generates a runtime GameModel from static LevelConfig.
+ * @details Assigns ids and initializes card zones and positions.
  */
 namespace cardgame {
 
 class GameModelFromLevelGenerator
 {
 public:
+    /**
+     * @brief Build a GameModel from level configuration.
+     * @param config Level configuration.
+     * @return Unique pointer to a populated GameModel.
+     */
     static std::unique_ptr<GameModel> generate(const LevelConfig& config);
 };
 

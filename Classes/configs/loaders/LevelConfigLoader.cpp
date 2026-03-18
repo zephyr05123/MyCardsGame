@@ -17,27 +17,27 @@ bool parseCardArray(const rapidjson::Value& arrayValue, std::vector<LevelCardCon
     outCards.clear();
     for (rapidjson::SizeType i = 0; i < arrayValue.Size(); ++i)
     {
-        const rapidjson::Value& cardValue = arrayValue[i];
-        if (!cardValue.IsObject())
+        const rapidjson::Value& kCardValue = arrayValue[i];
+        if (!kCardValue.IsObject())
         {
             return false;
         }
 
-        if (!cardValue.HasMember("CardFace") || !cardValue.HasMember("CardSuit") || !cardValue.HasMember("Position"))
+        if (!kCardValue.HasMember("CardFace") || !kCardValue.HasMember("CardSuit") || !kCardValue.HasMember("Position"))
         {
             return false;
         }
 
-        const rapidjson::Value& positionValue = cardValue["Position"];
-        if (!positionValue.IsObject() || !positionValue.HasMember("x") || !positionValue.HasMember("y"))
+        const rapidjson::Value& kPositionValue = kCardValue["Position"];
+        if (!kPositionValue.IsObject() || !kPositionValue.HasMember("x") || !kPositionValue.HasMember("y"))
         {
             return false;
         }
 
         LevelCardConfig cfg;
-        cfg.cardFace = cardValue["CardFace"].GetInt();
-        cfg.cardSuit = cardValue["CardSuit"].GetInt();
-        cfg.position = cocos2d::Vec2(positionValue["x"].GetFloat(), positionValue["y"].GetFloat());
+        cfg.cardFace = kCardValue["CardFace"].GetInt();
+        cfg.cardSuit = kCardValue["CardSuit"].GetInt();
+        cfg.position = cocos2d::Vec2(kPositionValue["x"].GetFloat(), kPositionValue["y"].GetFloat());
         outCards.push_back(cfg);
     }
 
@@ -80,4 +80,5 @@ bool LevelConfigLoader::loadFromFile(const std::string& filePath, LevelConfig& o
 }
 
 } // namespace cardgame
+
 

@@ -9,10 +9,10 @@ bool CardMatchService::isMatch(CardFaceType a, CardFaceType b)
         return false;
     }
 
-    const int ia = static_cast<int>(a);
-    const int ib = static_cast<int>(b);
-    const int diff = ia - ib;
-    if (diff == 1 || diff == -1)
+    const int kIa = static_cast<int>(a);
+    const int kIb = static_cast<int>(b);
+    const int kDiff = kIa - kIb;
+    if (kDiff == 1 || kDiff == -1)
     {
         return true;
     }
@@ -27,3 +27,4 @@ bool CardMatchService::isMatch(CardFaceType a, CardFaceType b)
 }
 
 } // namespace cardgame
+

@@ -29,8 +29,8 @@ void PlayFieldView::addCardView(CardView* cardView)
     {
         return;
     }
-    const int cardId = cardView->getCardId();
-    _cardViews[cardId] = cardView;
+    const int kCardId = cardView->getCardId();
+    _cardViews[kCardId] = cardView;
     this->addChild(cardView);
 }
 
@@ -55,3 +55,5 @@ CardView* PlayFieldView::getCardView(int cardId) const
 }
 
 } // namespace cardgame
+
+

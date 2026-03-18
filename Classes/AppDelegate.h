@@ -28,37 +28,36 @@
 #include "cocos2d.h"
 
 /**
-@brief    The cocos2d Application.
-
-Private inheritance here hides part of interface from Director.
-*/
-class  AppDelegate : private cocos2d::Application
+ * @brief Application lifecycle handler for Cocos2d-x.
+ * @details Owns initialization and background/foreground transitions.
+ */
+class AppDelegate : private cocos2d::Application
 {
 public:
+    /** @brief Default constructor. */
     AppDelegate();
+
+    /** @brief Default destructor. */
     virtual ~AppDelegate();
 
+    /** @brief Initialize OpenGL context attributes. */
     virtual void initGLContextAttrs();
 
     /**
-    @brief    Implement Director and Scene init code here.
-    @return true    Initialize success, app continue.
-    @return false   Initialize failed, app terminate.
-    */
+     * @brief Implement Director and Scene init code here.
+     * @return true if initialization succeeds.
+     */
     virtual bool applicationDidFinishLaunching();
 
     /**
-    @brief  Called when the application moves to the background
-    @param  the pointer of the application
-    */
+     * @brief Called when the application moves to the background.
+     */
     virtual void applicationDidEnterBackground();
 
     /**
-    @brief  Called when the application reenters the foreground
-    @param  the pointer of the application
-    */
+     * @brief Called when the application reenters the foreground.
+     */
     virtual void applicationWillEnterForeground();
 };
 
 #endif // _APP_DELEGATE_H_
-

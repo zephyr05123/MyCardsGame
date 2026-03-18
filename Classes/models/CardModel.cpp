@@ -39,14 +39,13 @@ CardModel CardModel::fromJson(const rapidjson::Value& value)
     model.face = static_cast<CardFaceType>(value["face"].GetInt());
     model.zone = static_cast<CardZone>(value["zone"].GetInt());
 
-    const rapidjson::Value& posValue = value["position"];
-    model.position = cocos2d::Vec2(posValue["x"].GetFloat(), posValue["y"].GetFloat());
+    const rapidjson::Value& kPosValue = value["position"];
+    model.position = cocos2d::Vec2(kPosValue["x"].GetFloat(), kPosValue["y"].GetFloat());
 
-    const rapidjson::Value& originValue = value["origin"];
-    model.originalPosition = cocos2d::Vec2(originValue["x"].GetFloat(), originValue["y"].GetFloat());
+    const rapidjson::Value& kOriginValue = value["origin"];
+    model.originalPosition = cocos2d::Vec2(kOriginValue["x"].GetFloat(), kOriginValue["y"].GetFloat());
 
     return model;
 }
 
 } // namespace cardgame
-

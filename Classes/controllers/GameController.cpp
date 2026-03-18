@@ -56,15 +56,15 @@ bool GameController::init(cocos2d::Node* parent)
     });
 
     _gameView->setOnUndoClick([this]() {
-        handleUndo();
+        _handleUndo();
     });
 
-    initTrayAndStack();
+    _initTrayAndStack();
 
     return true;
 }
 
-void GameController::initTrayAndStack()
+void GameController::_initTrayAndStack()
 {
     if (!_gameModel || !_gameView)
     {
@@ -73,32 +73,32 @@ void GameController::initTrayAndStack()
 
     if (!_gameModel->stackCardIds.empty())
     {
-        const int trayId = _gameModel->stackCardIds.back();
+        const int kTrayId = _gameModel->stackCardIds.back();
         _gameModel->stackCardIds.pop_back();
-        CardModel* trayCard = _gameModel->getCardById(trayId);
+        CardModel* trayCard = _gameModel->getCardById(kTrayId);
         if (trayCard)
         {
             trayCard->zone = CardZone::TRAY;
             trayCard->position = _gameView->getTrayPosition();
-            _gameModel->trayTopCardId = trayId;
+            _gameModel->trayTopCardId = kTrayId;
 
-            _gameView->placeCardInZone(trayId, CardZone::TRAY, trayCard->position);
-            _gameView->showCard(trayId, true);
-            _gameView->setTrayTopCard(trayId);
+            _gameView->placeCardInZone(kTrayId, CardZone::TRAY, trayCard->position);
+            _gameView->showCard(kTrayId, true);
+            _gameView->setTrayTopCard(kTrayId);
         }
     }
 
     if (!_gameModel->stackCardIds.empty())
     {
-        const int topId = _gameModel->stackCardIds.back();
-        CardModel* topCard = _gameModel->getCardById(topId);
+        const int kTopId = _gameModel->stackCardIds.back();
+        CardModel* topCard = _gameModel->getCardById(kTopId);
         if (topCard)
         {
             topCard->zone = CardZone::STACK;
             topCard->position = _gameView->getStackPosition();
-            _gameView->placeCardInZone(topId, CardZone::STACK, topCard->position);
-            _gameView->showCard(topId, true);
-            _gameView->setStackTopCard(topId);
+            _gameView->placeCardInZone(kTopId, CardZone::STACK, topCard->position);
+            _gameView->showCard(kTopId, true);
+            _gameView->setStackTopCard(kTopId);
         }
     }
     else
@@ -107,7 +107,7 @@ void GameController::initTrayAndStack()
     }
 }
 
-void GameController::removeDiscardId(int cardId)
+void GameController::_removeDiscardId(int cardId)
 {
     if (!_gameModel)
     {
@@ -125,7 +125,7 @@ void GameController::removeDiscardId(int cardId)
     }
 }
 
-void GameController::removeStackId(int cardId)
+void GameController::_removeStackId(int cardId)
 {
     if (!_gameModel)
     {
@@ -143,7 +143,7 @@ void GameController::removeStackId(int cardId)
     }
 }
 
-void GameController::handleUndo()
+void GameController::_handleUndo()
 {
     if (!_undoManager || !_undoManager->canUndo() || !_gameModel || !_gameView)
     {
@@ -163,70 +163,100 @@ void GameController::handleUndo()
         return;
     }
 
-    const cocos2d::Vec2 fromPos = record.fromPosition;
-    const cocos2d::Vec2 trayPos = _gameView->getTrayPosition();
-
     if (record.type == UndoType::MATCH)
     {
         if (!prevTrayCard)
         {
             return;
         }
-
-        movedCard->zone = CardZone::PLAYFIELD;
-        movedCard->position = fromPos;
-        _gameModel->addPlayfieldCard(movedCard->id);
-
-        prevTrayCard->zone = CardZone::TRAY;
-        prevTrayCard->position = record.prevTrayPosition;
-        _gameModel->trayTopCardId = prevTrayCard->id;
-        removeDiscardId(prevTrayCard->id);
-
-        _gameView->placeCardInZone(movedCard->id, CardZone::PLAYFIELD, trayPos);
-        _gameView->showCard(movedCard->id, true);
-        _gameView->moveCardTo(movedCard->id, fromPos, kMoveDuration);
-        _gameView->setCardInteractive(movedCard->id, true);
-
-        _gameView->placeCardInZone(prevTrayCard->id, CardZone::TRAY, prevTrayCard->position);
-        _gameView->showCard(prevTrayCard->id, true);
-        _gameView->moveCardTo(prevTrayCard->id, prevTrayCard->position, kMoveDuration);
-        _gameView->setTrayTopCard(prevTrayCard->id);
+        _applyMatchUndo(record, movedCard, prevTrayCard);
     }
     else if (record.type == UndoType::STACK_FLIP)
     {
-        // Move current tray card back to stack top.
-        if (movedCard->zone != CardZone::TRAY)
-        {
-            return;
-        }
-
-        movedCard->zone = CardZone::STACK;
-        movedCard->position = fromPos;
-        _gameModel->stackCardIds.push_back(movedCard->id);
-
-        _gameView->placeCardInZone(movedCard->id, CardZone::STACK, trayPos);
-        _gameView->showCard(movedCard->id, true);
-        _gameView->moveCardTo(movedCard->id, fromPos, kMoveDuration);
-        _gameView->setStackTopCard(movedCard->id);
-
-        if (prevTrayCard)
-        {
-            prevTrayCard->zone = CardZone::TRAY;
-            prevTrayCard->position = record.prevTrayPosition;
-            _gameModel->trayTopCardId = prevTrayCard->id;
-            removeDiscardId(prevTrayCard->id);
-
-            _gameView->placeCardInZone(prevTrayCard->id, CardZone::TRAY, prevTrayCard->position);
-            _gameView->showCard(prevTrayCard->id, true);
-            _gameView->setTrayTopCard(prevTrayCard->id);
-        }
-        else
-        {
-            _gameModel->trayTopCardId = -1;
-        }
+        _applyStackFlipUndo(record, movedCard, prevTrayCard);
     }
 
-    // Re-bind callbacks for playfield cards.
+    _rebindPlayFieldCallbacks();
+}
+
+void GameController::_applyMatchUndo(const UndoRecord& record, CardModel* movedCard, CardModel* prevTrayCard)
+{
+    if (!_gameModel || !_gameView || !movedCard || !prevTrayCard)
+    {
+        return;
+    }
+
+    const cocos2d::Vec2 kFromPos = record.fromPosition;
+    const cocos2d::Vec2 kTrayPos = _gameView->getTrayPosition();
+
+    movedCard->zone = CardZone::PLAYFIELD;
+    movedCard->position = kFromPos;
+    _gameModel->addPlayfieldCard(movedCard->id);
+
+    prevTrayCard->zone = CardZone::TRAY;
+    prevTrayCard->position = record.prevTrayPosition;
+    _gameModel->trayTopCardId = prevTrayCard->id;
+    _removeDiscardId(prevTrayCard->id);
+
+    _gameView->placeCardInZone(movedCard->id, CardZone::PLAYFIELD, kTrayPos);
+    _gameView->showCard(movedCard->id, true);
+    _gameView->moveCardTo(movedCard->id, kFromPos, kMoveDuration);
+    _gameView->setCardInteractive(movedCard->id, true);
+
+    _gameView->placeCardInZone(prevTrayCard->id, CardZone::TRAY, prevTrayCard->position);
+    _gameView->showCard(prevTrayCard->id, true);
+    _gameView->moveCardTo(prevTrayCard->id, prevTrayCard->position, kMoveDuration);
+    _gameView->setTrayTopCard(prevTrayCard->id);
+}
+
+void GameController::_applyStackFlipUndo(const UndoRecord& record, CardModel* movedCard, CardModel* prevTrayCard)
+{
+    if (!_gameModel || !_gameView || !movedCard)
+    {
+        return;
+    }
+
+    if (movedCard->zone != CardZone::TRAY)
+    {
+        return;
+    }
+
+    const cocos2d::Vec2 kFromPos = record.fromPosition;
+    const cocos2d::Vec2 kTrayPos = _gameView->getTrayPosition();
+
+    movedCard->zone = CardZone::STACK;
+    movedCard->position = kFromPos;
+    _gameModel->stackCardIds.push_back(movedCard->id);
+
+    _gameView->placeCardInZone(movedCard->id, CardZone::STACK, kTrayPos);
+    _gameView->showCard(movedCard->id, true);
+    _gameView->moveCardTo(movedCard->id, kFromPos, kMoveDuration);
+    _gameView->setStackTopCard(movedCard->id);
+
+    if (prevTrayCard)
+    {
+        prevTrayCard->zone = CardZone::TRAY;
+        prevTrayCard->position = record.prevTrayPosition;
+        _gameModel->trayTopCardId = prevTrayCard->id;
+        _removeDiscardId(prevTrayCard->id);
+
+        _gameView->placeCardInZone(prevTrayCard->id, CardZone::TRAY, prevTrayCard->position);
+        _gameView->showCard(prevTrayCard->id, true);
+        _gameView->setTrayTopCard(prevTrayCard->id);
+    }
+    else
+    {
+        _gameModel->trayTopCardId = -1;
+    }
+}
+
+void GameController::_rebindPlayFieldCallbacks()
+{
+    if (!_gameView || !_playFieldController)
+    {
+        return;
+    }
+
     _gameView->setOnPlayFieldCardClick([this](int cardId) {
         if (_playFieldController)
         {
@@ -236,10 +266,4 @@ void GameController::handleUndo()
 }
 
 } // namespace cardgame
-
-
-
-
-
-
 

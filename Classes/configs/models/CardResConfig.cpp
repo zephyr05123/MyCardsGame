@@ -26,12 +26,12 @@ std::string CardResConfig::getSuitIconFile(CardSuitType suit)
 
 std::string CardResConfig::getBigNumberFile(CardSuitType suit, CardFaceType face)
 {
-    const bool isRed = isRedSuit(suit);
-    const std::string color = isRed ? "red" : "black";
-    return "number/big_" + color + "_" + getFaceToken(face) + ".png";
+    const bool kIsRed = isRedSuit(suit);
+    const std::string kColor = kIsRed ? "red" : "black";
+    return "number/big_" + kColor + "_" + _getFaceToken(face) + ".png";
 }
 
-std::string CardResConfig::getFaceToken(CardFaceType face)
+std::string CardResConfig::_getFaceToken(CardFaceType face)
 {
     switch (face)
     {
@@ -67,3 +67,4 @@ std::string CardResConfig::getFaceToken(CardFaceType face)
 }
 
 } // namespace cardgame
+

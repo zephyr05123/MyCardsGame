@@ -6,14 +6,14 @@ std::unique_ptr<GameModel> GameModelFromLevelGenerator::generate(const LevelConf
 {
     std::unique_ptr<GameModel> model(new GameModel());
 
-    const float playFieldOffsetY = 580.0f;
+    const float kPlayFieldOffsetY = 580.0f;
 
     int nextId = 1;
     // Playfield cards
     for (const LevelCardConfig& cardCfg : config.playfield)
     {
         cocos2d::Vec2 pos = cardCfg.position;
-        pos.y += playFieldOffsetY;
+        pos.y += kPlayFieldOffsetY;
         CardModel card(nextId++, static_cast<CardSuitType>(cardCfg.cardSuit),
             static_cast<CardFaceType>(cardCfg.cardFace), CardZone::PLAYFIELD, pos);
         model->addCard(card);
